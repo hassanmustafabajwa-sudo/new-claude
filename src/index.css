@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@theme {
+  --font-serif: "Bodoni Moda", "Didot", Georgia, serif;
+  --font-sans: "Hanken Grotesk", system-ui, sans-serif;
+  --color-ink: #050505;
+  --color-char: #181715;
+  --color-ivory: #ece6da;
+  --color-ash: #8b877e;
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+html { background: var(--color-ink); }
+body { @apply bg-ink text-ivory font-sans antialiased overflow-x-hidden; }
+*:focus-visible { outline: 1px solid var(--color-ivory); outline-offset: 4px; }
+.meta { @apply font-sans text-[0.68rem] tracking-[0.22em] uppercase; }
+.outline-num { color: transparent; -webkit-text-stroke: 1px rgb(236 230 218 / 0.16); }
