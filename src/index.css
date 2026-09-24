@@ -105,3 +105,61 @@ button:disabled{cursor:not-allowed}
   .work-track{transform:none!important}
   .work-progress span{transform:none!important}
 }
+
+
+/* Contact — editorial project brief */
+.contact{background:#090909;padding-bottom:110px}
+.contact-main{grid-template-columns:minmax(0,.82fr) minmax(560px,1fr);gap:8vw;max-width:1600px;margin-left:auto;margin-right:auto}
+.contact-intro{padding-top:28px}
+.contact-intro h2{max-width:610px;font-size:clamp(68px,7.2vw,122px)}
+.contact-form-wrap{background:var(--paper);color:var(--black);border:0;padding:0;box-shadow:0 42px 120px rgba(0,0,0,.38);overflow:hidden}
+.contact-form-wrap:before,.contact-form-wrap:after{display:none}
+.contact-form-head{display:flex;justify-content:space-between;align-items:stretch;border-bottom:1px solid rgba(7,7,7,.14);min-height:82px;padding:0 34px}
+.contact-form-head>div{display:flex;flex-direction:column;justify-content:center;gap:7px}
+.contact-form-head>div:last-child{text-align:right}
+.contact-form-head span{font:400 7px var(--mono);letter-spacing:.17em;color:#777}
+.contact-form-head strong{font:500 9px var(--mono);letter-spacing:.13em;color:#111}
+.contact-form{padding:0 34px 34px}
+.contact-form .form-row{border-bottom:1px solid rgba(7,7,7,.16);padding:25px 0}
+.contact-form .form-row:first-of-type{padding-top:26px}
+.contact-form label>span{font-size:7px;letter-spacing:.16em;color:#777;margin-bottom:13px}
+.contact-form label i{color:#aaa}
+.contact-form input,.contact-form select,.contact-form textarea{color:#111;font-size:15px}
+.contact-form input::placeholder,.contact-form textarea::placeholder{color:#aaa}
+.contact-form select{background-image:linear-gradient(45deg,transparent 50%,#777 50%),linear-gradient(135deg,#777 50%,transparent 50%)}
+.contact-form select option{background:#eeece6;color:#111}
+.contact-form input:focus,.contact-form select:focus,.contact-form textarea:focus{color:#111}
+.contact-form label:focus-within>span{color:#111}
+.form-submit-row{margin-top:4px;padding:30px 0 0;align-items:center}
+.form-submit-row>span{color:#8a8984;font-size:7px}
+.form-submit{background:#090909;color:#f0eee9;border:0;width:196px;height:58px;justify-content:center;padding:0 18px;letter-spacing:.15em;transition:background .3s,transform .3s}
+.form-submit:hover{background:#1e1e1e}
+.form-submit .arrow{font-size:19px}
+.form-error{border-top:1px solid rgba(100,40,40,.3);color:#8d5d5d}
+.form-success{min-height:560px;padding:44px 38px;color:#111}
+.form-success h3{color:#111}
+.form-success h3 em{color:#777}
+.form-success p{color:#666}
+.form-success button{color:#111;border-color:#888}
+.form-honeypot{color:#111}
+
+@media(max-width:1050px) and (min-width:801px){
+ .contact-main{grid-template-columns:1fr;gap:90px}
+ .contact-intro h2{max-width:760px}
+ .contact-form-wrap{max-width:760px;margin-left:auto;width:100%}
+}
+@media(max-width:800px){
+ .contact{padding-bottom:85px}
+ .contact-main{max-width:none}
+ .contact-intro h2{max-width:650px}
+ .contact-form-wrap{margin-top:85px}
+ .contact-form-head{min-height:74px;padding:0 20px}
+ .contact-form{padding:0 20px 24px}
+ .contact-form .form-row{padding:21px 0}
+ .contact-form .form-row:first-of-type{padding-top:22px}
+ .contact-form input,.contact-form select,.contact-form textarea{font-size:14px}
+ .form-submit-row{display:block;padding-top:26px}
+ .form-submit-row>span{display:block;max-width:none;margin-bottom:20px}
+ .form-submit{width:100%;height:56px}
+ .form-success{min-height:430px;padding:30px 20px}
+}
