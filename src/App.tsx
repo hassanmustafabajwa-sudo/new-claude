@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion";
 
 const work = [
@@ -104,28 +104,53 @@ function SplitWorlds() {
 
 function Work({onOpen}:{onOpen:(item:typeof work[number])=>void}) {
   const ref=useRef<HTMLDivElement>(null);
+  const trackRef=useRef<HTMLDivElement>(null);
   const {scrollYProgress}=useScroll({target:ref,offset:["start start","end end"]});
-  const [viewportWidth,setViewportWidth]=useState(0);
-  useEffect(()=>{
-    const update=()=>setViewportWidth(window.innerWidth);
-    update();
-    window.addEventListener("resize",update);
-    return()=>window.removeEventListener("resize",update);
+  const [travel,setTravel]=useState(0);
+  const [viewportHeight,setViewportHeight]=useState(0);
+
+  useLayoutEffect(()=>{
+    const measure=()=>{
+      const track=trackRef.current;
+      if(!track) return;
+      const nextTravel=Math.max(0,track.scrollWidth-window.innerWidth);
+      setTravel(nextTravel);
+      setViewportHeight(window.innerHeight);
+    };
+    measure();
+    const observer=new ResizeObserver(measure);
+    if(trackRef.current) observer.observe(trackRef.current);
+    window.addEventListener("resize",measure);
+    return()=>{
+      observer.disconnect();
+      window.removeEventListener("resize",measure);
+    };
   },[]);
-  const step=viewportWidth<=800 ? 1.16 : .87;
-  const x=useTransform(scrollYProgress,[0,1],[0,-Math.max(viewportWidth,1)*(work.length-1)*step]);
-  return <section id="work" ref={ref} className="work-wrap">
+
+  const x=useTransform(scrollYProgress,[0,1],[0,-travel]);
+
+  return <section
+    id="work"
+    ref={ref}
+    className="work-wrap"
+    style={{height:travel>0 ? travel+viewportHeight : undefined}}
+  >
     <div className="work-sticky">
       <div className="section-label work-label"><span>03</span><span>SELECTED WORK</span></div>
-      <motion.div className="work-track" style={{x:x}}>{work.map((item)=><article className="work-card" key={item.id}>
-        <button className="work-image-wrap" onClick={()=>onOpen(item)} aria-label={`Open ${item.title} case study`}>
-          <motion.img src={item.image} alt={item.title} whileHover={{scale:1.035}} transition={{duration:1}} />
-          <div className="image-noise"></div>
-          <div className="work-overlay"><span>{item.id}</span><span>OPEN CASE <Arrow small/></span></div>
-        </button>
-        <div className="work-info"><div><span className="project-no">{item.id}</span><h3>{item.title}</h3><p>{item.type}</p></div><div className="project-side"><span>{item.year}</span><button onClick={()=>onOpen(item)} aria-label={`Open ${item.title} case study`}>VIEW PROJECT <Arrow small/></button></div></div>
-      </article>)}</motion.div>
-      <div className="work-progress"><motion.span style={{scaleX:useTransform(scrollYProgress,[0,1],[0.33,1])}} /></div>
+      <motion.div ref={trackRef} className="work-track" style={{x}}>
+        {work.map((item)=><article className="work-card" key={item.id}>
+          <button className="work-image-wrap" onClick={()=>onOpen(item)} aria-label={`Open ${item.title} case study`}>
+            <motion.img src={item.image} alt={item.title} loading="lazy" decoding="async" whileHover={{scale:1.035}} transition={{duration:1}} />
+            <div className="image-noise"></div>
+            <div className="work-overlay"><span>{item.id}</span><span>OPEN CASE <Arrow small/></span></div>
+          </button>
+          <div className="work-info">
+            <div><span className="project-no">{item.id}</span><h3>{item.title}</h3><p>{item.type}</p></div>
+            <div className="project-side"><span>{item.year}</span><button onClick={()=>onOpen(item)} aria-label={`Open ${item.title} case study`}>VIEW PROJECT <Arrow small/></button></div>
+          </div>
+        </article>)}
+      </motion.div>
+      <div className="work-progress" aria-hidden="true"><motion.span style={{scaleX:useTransform(scrollYProgress,[0,1],[0,1])}} /></div>
     </div>
   </section>
 }
@@ -174,24 +199,27 @@ function Statement() {
 }
 
 function Contact() {
-  const [submitted,setSubmitted]=useState(false);
-  const [form,setForm]=useState({name:"",email:"",company:"",project:"",budget:"",message:""});
+  const [status,setStatus]=useState<"idle"|"sending"|"success"|"error">("idle");
+  const [form,setForm]=useState({name:"",email:"",company:"",project:"",budget:"",message:"",website:""});
   const update=(key:keyof typeof form)=>(e:React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement>)=>setForm(v=>({...v,[key]:e.target.value}));
-  const submit=(e:React.FormEvent<HTMLFormElement>)=>{
+
+  const submit=async(e:React.FormEvent<HTMLFormElement>)=>{
     e.preventDefault();
-    const subject=encodeURIComponent(`PARALLEL — Project Inquiry from ${form.name}`);
-    const body=encodeURIComponent([
-      `Name: ${form.name}`,
-      `Email: ${form.email}`,
-      `Company: ${form.company||"—"}`,
-      `Project: ${form.project}`,
-      `Budget: ${form.budget||"—"}`,
-      "",
-      form.message
-    ].join("\n"));
-    setSubmitted(true);
-    window.location.href=`mailto:hello@parallel.studio?subject=${subject}&body=${body}`;
+    if(status==="sending") return;
+    setStatus("sending");
+    try{
+      const response=await fetch("/api/contact",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(form)
+      });
+      if(!response.ok) throw new Error("Contact request failed");
+      setStatus("success");
+    }catch{
+      setStatus("error");
+    }
   };
+
   return <section id="contact" className="contact">
     <div className="section-label"><span>08</span><span>START SOMETHING</span></div>
     <div className="contact-lines"><span></span><span></span></div>
@@ -203,7 +231,13 @@ function Contact() {
         <div className="contact-meta"><span>LAHORE / PAKISTAN</span><span>WORKING WORLDWIDE</span><a href="mailto:hello@parallel.studio">HELLO@PARALLEL.STUDIO</a></div>
       </div>
       <div className="contact-form-wrap">
-        {!submitted ? <form className="contact-form" onSubmit={submit}>
+        {status==="success" ? <div className="form-success" role="status">
+          <span className="eyebrow">MESSAGE SENT</span>
+          <h3>THANK YOU.<br/><em>WE'LL TAKE IT FROM HERE.</em></h3>
+          <p>Your project inquiry has reached PARALLEL. We'll review the brief and get back to you.</p>
+          <button onClick={()=>{setStatus("idle");setForm({name:"",email:"",company:"",project:"",budget:"",message:"",website:""})}}>SEND ANOTHER <Arrow small/></button>
+        </div> : <form className="contact-form" onSubmit={submit}>
+          <input className="form-honeypot" tabIndex={-1} autoComplete="off" aria-hidden="true" value={form.website} onChange={update("website")} />
           <div className="form-row form-row-double">
             <label><span>01 / NAME</span><input required value={form.name} onChange={update("name")} autoComplete="name" /></label>
             <label><span>02 / EMAIL</span><input required type="email" value={form.email} onChange={update("email")} autoComplete="email" /></label>
@@ -218,8 +252,12 @@ function Contact() {
           <div className="form-row">
             <label><span>06 / TELL US ABOUT IT</span><textarea required rows={4} value={form.message} onChange={update("message")} /></label>
           </div>
-          <div className="form-submit-row"><span>WE'LL GET BACK TO YOU AS SOON AS POSSIBLE.</span><Magnetic><button className="form-submit" type="submit">SEND INQUIRY <Arrow/></button></Magnetic></div>
-        </form> : <div className="form-success"><span className="eyebrow">MESSAGE READY</span><h3>THANK YOU.<br/><em>WE'LL TAKE IT FROM HERE.</em></h3><p>Your inquiry has been prepared in your email client. Send it to complete the introduction.</p><button onClick={()=>setSubmitted(false)}>SEND ANOTHER <Arrow small/></button></div>}
+          {status==="error" && <div className="form-error" role="alert">MESSAGE COULDN'T BE SENT. EMAIL <a href="mailto:hello@parallel.studio">HELLO@PARALLEL.STUDIO</a> DIRECTLY.</div>}
+          <div className="form-submit-row">
+            <span>YOUR BRIEF STAYS PRIVATE. WE ONLY USE IT TO RESPOND.</span>
+            <Magnetic><button className="form-submit" type="submit" disabled={status==="sending"}>{status==="sending" ? "SENDING…" : "SEND INQUIRY"} <Arrow/></button></Magnetic>
+          </div>
+        </form>}
       </div>
     </div>
     <div className="contact-foot"><span>08 / CONTACT</span><span>PARALLEL / 2026</span></div>
