@@ -32,11 +32,9 @@ function Magnetic({children}:{children:React.ReactNode}) {
 
 function Header({onMenu,menu}:{onMenu:()=>void;menu:boolean}) {
   return <header className="header">
-    <a className="brand" href="#top" aria-label="Parallel home">PARALLEL<span>®</span></a>
-    <div className="header-center">DIGITAL EXPERIENCE STUDIO</div>
-    <nav className="desktop-nav">
-      <a href="#work">WORK</a><a href="#studio">STUDIO</a><a href="#contact">CONTACT</a>
-    </nav>
+    <a className="brand" href="#top" aria-label="Parallel home"><span className="brand-mark">P</span><span className="brand-name">PARALLEL</span><span className="brand-reg">®</span></a>
+    <div className="header-center"><span>INDEPENDENT DIGITAL STUDIO</span><i></i><span>LAHORE / WORLDWIDE</span></div>
+    <nav className="desktop-nav"><a href="#work"><span>01</span>WORK</a><a href="#studio"><span>02</span>STUDIO</a><a href="#contact"><span>03</span>CONTACT</a></nav>
     <button className="menu-button" onClick={onMenu} aria-expanded={menu} aria-label={menu?"Close menu":"Open menu"}><span>{menu?"CLOSE":"MENU"}</span><i></i><i></i></button>
   </header>
 }
