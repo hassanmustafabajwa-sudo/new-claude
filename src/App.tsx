@@ -31,11 +31,52 @@ function Magnetic({children}:{children:React.ReactNode}) {
 }
 
 function Header({onMenu,menu}:{onMenu:()=>void;menu:boolean}) {
+  const [active,setActive]=useState("work");
+
+  useEffect(()=>{
+    const sections=["work","studio","contact"];
+    const observer=new IntersectionObserver((entries)=>{
+      const visible=entries.filter(entry=>entry.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio);
+      if(visible[0]) setActive(visible[0].target.id);
+    },{rootMargin:"-18% 0px -62% 0px",threshold:[0,.15,.4,.7]});
+    sections.forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) observer.observe(el);
+    });
+    return()=>observer.disconnect();
+  },[]);
+
+  const nav=[
+    ["01","WORK","work"],
+    ["02","STUDIO","studio"],
+    ["03","CONTACT","contact"]
+  ] as const;
+
   return <header className="header">
-    <a className="brand" href="#top" aria-label="Parallel home"><span className="brand-mark">P</span><span className="brand-name">PARALLEL</span><span className="brand-reg">®</span></a>
-    <div className="header-center"><span>INDEPENDENT DIGITAL STUDIO</span><i></i><span>LAHORE / WORLDWIDE</span></div>
-    <nav className="desktop-nav"><a href="#work"><span>01</span>WORK</a><a href="#studio"><span>02</span>STUDIO</a><a href="#contact"><span>03</span>CONTACT</a></nav>
-    <button className="menu-button" onClick={onMenu} aria-expanded={menu} aria-label={menu?"Close menu":"Open menu"}><span>{menu?"CLOSE":"MENU"}</span><i></i><i></i></button>
+    <a className="brand" href="#top" aria-label="Parallel home">
+      <span className="brand-mark">P</span>
+      <span className="brand-name">PARALLEL</span>
+      <span className="brand-reg">®</span>
+    </a>
+
+    <div className="header-parallel-system" aria-hidden="true">
+      <span className="parallel-line"></span>
+      <span className="parallel-status"><b>01</b><i></i>DIGITAL EXPERIENCES</span>
+      <span className="parallel-line"></span>
+    </div>
+
+    <nav className="desktop-nav" aria-label="Primary navigation">
+      {nav.map(([number,label,id])=>
+        <a key={id} href={`#${id}`} className={active===id?"is-active":""}>
+          <span>{number}</span>{label}
+        </a>
+      )}
+    </nav>
+
+    <button className={`menu-button ${menu?"is-open":""}`} onClick={onMenu} aria-expanded={menu} aria-label={menu?"Close menu":"Open menu"}>
+      <span>{menu?"CLOSE":"MENU"}</span>
+      <i></i><i></i><i></i>
+    </button>
   </header>
 }
 
