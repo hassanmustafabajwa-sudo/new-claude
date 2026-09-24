@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion";
 
 const work = [
-  { id:"01", title:"MONUMENT", type:"Architecture / Digital Experience", image:"https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=2200&q=88", year:"2026" },
-  { id:"02", title:"NOIRÉ", type:"Commerce / Art Direction", image:"https://images.unsplash.com/photo-1547887538-e3a2f32cb1cc?auto=format&fit=crop&w=2200&q=88", year:"2026" },
-  { id:"03", title:"ATELIER 09", type:"Hospitality / Interactive Identity", image:"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=2200&q=88", year:"2026" },
+  { id:"01", title:"MONUMENT", type:"Architecture / Digital Experience", image:"https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=2200&q=88", year:"2026", description:"A restrained digital experience for an architecture-led brand, built around scale, rhythm and materiality.", services:"Art Direction / UX / Development" },
+  { id:"02", title:"NOIRÉ", type:"Commerce / Art Direction", image:"https://images.unsplash.com/photo-1547887538-e3a2f32cb1cc?auto=format&fit=crop&w=2200&q=88", year:"2026", description:"A cinematic commerce direction where product, typography and movement share the same visual language.", services:"Ecommerce / Art Direction / Motion" },
+  { id:"03", title:"ATELIER 09", type:"Hospitality / Interactive Identity", image:"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=2200&q=88", year:"2026", description:"An editorial hospitality interface designed to make atmosphere feel tangible before the first visit.", services:"Identity / Experience / Development" },
 ];
 
 const capabilities = [
@@ -102,16 +102,28 @@ function SplitWorlds() {
   </section>
 }
 
-function Work() {
+function Work({onOpen}:{onOpen:(item:typeof work[number])=>void}) {
   const ref=useRef<HTMLDivElement>(null);
   const {scrollYProgress}=useScroll({target:ref,offset:["start start","end end"]});
-  const x=useTransform(scrollYProgress,[0,1],[0, -(work.length-1)*87]);
+  const [viewportWidth,setViewportWidth]=useState(0);
+  useEffect(()=>{
+    const update=()=>setViewportWidth(window.innerWidth);
+    update();
+    window.addEventListener("resize",update);
+    return()=>window.removeEventListener("resize",update);
+  },[]);
+  const step=viewportWidth<=800 ? 1.16 : .87;
+  const x=useTransform(scrollYProgress,[0,1],[0,-Math.max(viewportWidth,1)*(work.length-1)*step]);
   return <section id="work" ref={ref} className="work-wrap">
     <div className="work-sticky">
       <div className="section-label work-label"><span>03</span><span>SELECTED WORK</span></div>
-      <motion.div className="work-track" style={{x:x}}>{work.map((item,i)=><article className="work-card" key={item.id}>
-        <div className="work-image-wrap"><motion.img src={item.image} alt={item.title} whileHover={{scale:1.035}} transition={{duration:1}} /><div className="image-noise"></div><div className="work-overlay"><span>{item.id}</span><span>EXPLORE</span></div></div>
-        <div className="work-info"><div><span className="project-no">{item.id}</span><h3>{item.title}</h3><p>{item.type}</p></div><div className="project-side"><span>{item.year}</span><a href="#contact" aria-label={`Discuss ${item.title}`}>VIEW PROJECT <Arrow small/></a></div></div>
+      <motion.div className="work-track" style={{x:x}}>{work.map((item)=><article className="work-card" key={item.id}>
+        <button className="work-image-wrap" onClick={()=>onOpen(item)} aria-label={`Open ${item.title} case study`}>
+          <motion.img src={item.image} alt={item.title} whileHover={{scale:1.035}} transition={{duration:1}} />
+          <div className="image-noise"></div>
+          <div className="work-overlay"><span>{item.id}</span><span>OPEN CASE <Arrow small/></span></div>
+        </button>
+        <div className="work-info"><div><span className="project-no">{item.id}</span><h3>{item.title}</h3><p>{item.type}</p></div><div className="project-side"><span>{item.year}</span><button onClick={()=>onOpen(item)} aria-label={`Open ${item.title} case study`}>VIEW PROJECT <Arrow small/></button></div></div>
       </article>)}</motion.div>
       <div className="work-progress"><motion.span style={{scaleX:useTransform(scrollYProgress,[0,1],[0.33,1])}} /></div>
     </div>
@@ -177,11 +189,34 @@ function Footer() {
   return <footer><div className="footer-top"><a className="footer-brand" href="#top">PARALLEL<span>®</span></a><div><span className="eyebrow">DIGITAL EXPERIENCE STUDIO</span><p>Websites, interfaces and digital experiences built around design, technology and motion.</p></div></div><div className="footer-bottom"><span>© 2026 PARALLEL STUDIO</span><div><a href="#work">WORK</a><a href="#studio">STUDIO</a><a href="#contact">CONTACT</a></div><a href="#top">BACK TO TOP ↑</a></div></footer>
 }
 
+function ProjectModal({item,onClose}:{item:typeof work[number]|null;onClose:()=>void}) {
+  useEffect(()=>{
+    if(!item) return;
+    const onKey=(e:KeyboardEvent)=>{if(e.key==="Escape") onClose()};
+    window.addEventListener("keydown",onKey);
+    return()=>window.removeEventListener("keydown",onKey);
+  },[item,onClose]);
+  useEffect(()=>{document.body.classList.toggle("modal-open",!!item);return()=>document.body.classList.remove("modal-open")},[item]);
+  return <AnimatePresence>
+    {item&&<motion.div className="project-modal" role="dialog" aria-modal="true" aria-label={item.title} initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={onClose}>
+      <motion.div className="project-modal-panel" initial={{y:50,scale:.985}} animate={{y:0,scale:1}} exit={{y:30,scale:.99}} transition={{duration:.55,ease:[.16,1,.3,1]}} onClick={e=>e.stopPropagation()}>
+        <button className="project-modal-close" onClick={onClose}>CLOSE ×</button>
+        <div className="project-modal-image"><img src={item.image} alt="" /></div>
+        <div className="project-modal-content">
+          <div><span className="eyebrow">{item.id} / {item.type}</span><h2>{item.title}</h2></div>
+          <div className="project-modal-copy"><p>{item.description}</p><span>{item.services}</span><a href="#contact" onClick={onClose}>DISCUSS A SIMILAR PROJECT <Arrow small/></a></div>
+        </div>
+      </motion.div>
+    </motion.div>}
+  </AnimatePresence>;
+}
+
 function App(){
   const [menu,setMenu]=useState(false);
+  const [project,setProject]=useState<typeof work[number]|null>(null);
   useEffect(()=>{document.body.classList.toggle("menu-open",menu);return()=>document.body.classList.remove("menu-open")},[menu]);
   return <div className="site"><Header onMenu={()=>setMenu(!menu)} menu={menu}/>{menu&&<div className="mobile-menu"><button className="mobile-menu-close" onClick={()=>setMenu(false)}>CLOSE ×</button><a href="#work" onClick={()=>setMenu(false)}>WORK <Arrow/></a><a href="#studio" onClick={()=>setMenu(false)}>STUDIO <Arrow/></a><a href="#contact" onClick={()=>setMenu(false)}>CONTACT <Arrow/></a></div>}
-    <main><Hero/><Manifesto/><SplitWorlds/><Work/><Capabilities/><Stack/><Process/><Statement/><Contact/></main><Footer/>
+    <main><Hero/><Manifesto/><SplitWorlds/><Work onOpen={setProject}/><Capabilities/><Stack/><Process/><Statement/><Contact/></main><Footer/><ProjectModal item={project} onClose={()=>setProject(null)}/>
   </div>
 }
 export default App;
