@@ -1,27 +1,188 @@
-import { useState } from "react";
-import { MotionConfig } from "framer-motion";
-import { Nav } from "./components/Nav";
-import { Hero, Break } from "./sections/Intro";
-import { Collection } from "./sections/Collection";
-import { ScentMap, House, Ingredients } from "./sections/Atmosphere";
-import { Journal, Finale, Footer } from "./sections/Closing";
+import { useEffect, useRef, useState } from "react";
+import { motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion";
 
-export default function App() {
-  const [bag, setBag] = useState(0);
-  return (
-    <MotionConfig reducedMotion="user">
-      <Nav count={bag} />
-      <main>
-        <Hero />
-        <Collection onAdd={() => setBag((b) => b + 1)} />
-        <ScentMap />
-        <Break />
-        <House />
-        <Ingredients />
-        <Journal />
-        <Finale />
-      </main>
-      <Footer />
-    </MotionConfig>
-  );
+const work = [
+  { id:"01", title:"MONUMENT", type:"Architecture / Digital Experience", image:"https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=2200&q=88", year:"2026" },
+  { id:"02", title:"NOIRÉ", type:"Commerce / Art Direction", image:"https://images.unsplash.com/photo-1547887538-e3a2f32cb1cc?auto=format&fit=crop&w=2200&q=88", year:"2026" },
+  { id:"03", title:"ATELIER 09", type:"Hospitality / Interactive Identity", image:"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=2200&q=88", year:"2026" },
+];
+
+const capabilities = [
+  ["01","Digital Direction","Positioning, art direction and digital strategy."],
+  ["02","Experience Design","Interfaces, systems and interactions with intention."],
+  ["03","Web Development","Fast, expressive websites engineered to perform."],
+  ["04","Motion & 3D","Scroll narratives, motion systems and selective 3D."],
+];
+
+const stack = ["STRATEGY","ART DIRECTION","UX / UI","REACT","TYPESCRIPT","MOTION","WEBGL","CMS","PERFORMANCE"];
+
+function Arrow({small=false}:{small?:boolean}) {
+  return <span className={small?"arrow small":"arrow"}>↗</span>;
 }
+
+function Reveal({children,className="",delay=0}:{children:React.ReactNode;className?:string;delay?:number}) {
+  return <motion.div className={className} initial={{opacity:0,y:40}} whileInView={{opacity:1,y:0}} viewport={{once:true,amount:.18}} transition={{duration:.8,ease:[.16,1,.3,1],delay}}>{children}</motion.div>;
+}
+
+function Magnetic({children}:{children:React.ReactNode}) {
+  const x=useMotionValue(0), y=useMotionValue(0);
+  const sx=useSpring(x,{stiffness:300,damping:20}), sy=useSpring(y,{stiffness:300,damping:20});
+  return <motion.div style={{x:sx,y:sy}} onMouseMove={e=>{const r=e.currentTarget.getBoundingClientRect();x.set((e.clientX-r.left-r.width/2)*.16);y.set((e.clientY-r.top-r.height/2)*.16)}} onMouseLeave={()=>{x.set(0);y.set(0)}}>{children}</motion.div>
+}
+
+function Header({onMenu}:{onMenu:()=>void}) {
+  return <header className="header">
+    <a className="brand" href="#top" aria-label="Parallel home">PARALLEL<span>®</span></a>
+    <div className="header-center">DIGITAL EXPERIENCE STUDIO</div>
+    <nav className="desktop-nav">
+      <a href="#work">WORK</a><a href="#studio">STUDIO</a><a href="#contact">CONTACT</a>
+    </nav>
+    <button className="menu-button" onClick={onMenu}><span>MENU</span><i></i><i></i></button>
+  </header>
+}
+
+function Hero() {
+  const ref=useRef<HTMLDivElement>(null);
+  const {scrollYProgress}=useScroll({target:ref,offset:["start start","end start"]});
+  const scale=useTransform(scrollYProgress,[0,.8],[1,1.16]);
+  const y=useTransform(scrollYProgress,[0,1],[0,-150]);
+  const leftX=useTransform(scrollYProgress,[0,.9],[0,-120]);
+  const rightX=useTransform(scrollYProgress,[0,.9],[0,120]);
+  const lineY=useTransform(scrollYProgress,[0,1],[0,160]);
+  return <section id="top" ref={ref} className="hero">
+    <div className="hero-grid"></div>
+    <motion.div className="hero-line line-left" style={{y:lineY}} />
+    <motion.div className="hero-line line-right" style={{y:lineY}} />
+    <div className="hero-meta hero-meta-top"><span>PARALLEL / 001</span><span>LAHORE — WORLDWIDE</span></div>
+    <motion.div className="hero-core" style={{scale,y}}>
+      <div className="hero-kicker">INDEPENDENT DIGITAL STUDIO</div>
+      <div className="hero-word" aria-label="PARALLEL"><motion.span style={{x:leftX}}>PARA</motion.span><motion.span style={{x:rightX}}>LLEL</motion.span></div>
+      <div className="hero-sub"><span>DIGITAL EXPERIENCES</span><strong>BUILT TO MOVE.</strong></div>
+    </motion.div>
+    <div className="hero-bottom">
+      <div className="hero-scroll"><span className="scroll-line"></span><span>SCROLL TO EXPLORE</span></div>
+      <div className="hero-index">01 / 09</div>
+    </div>
+  </section>
+}
+
+function Manifesto() {
+  const ref=useRef<HTMLDivElement>(null);
+  const {scrollYProgress}=useScroll({target:ref,offset:["start end","end start"]});
+  const x1=useTransform(scrollYProgress,[.05,.55],[120,-60]);
+  const x2=useTransform(scrollYProgress,[.2,.8],[-100,70]);
+  return <section ref={ref} className="manifesto section-light">
+    <div className="section-label dark-label"><span>02</span><span>THE POINT OF VIEW</span></div>
+    <div className="manifesto-copy">
+      <motion.h2 style={{x:x1}}>WE DON'T</motion.h2>
+      <motion.h2 style={{x:x2}}>BUILD WEBSITES.</motion.h2>
+      <motion.div className="manifesto-answer"><span>WE BUILD</span><strong>EXPERIENCES.</strong></motion.div>
+    </div>
+    <div className="manifesto-foot"><span>DESIGN × TECHNOLOGY × MOTION</span><span>SCROLL / 02</span></div>
+  </section>
+}
+
+function SplitWorlds() {
+  const ref=useRef<HTMLDivElement>(null);
+  const {scrollYProgress}=useScroll({target:ref,offset:["start start","end end"]});
+  const left=useTransform(scrollYProgress,[0,.5,1],[-5,-28,0]);
+  const right=useTransform(scrollYProgress,[0,.5,1],[5,28,0]);
+  const line=useTransform(scrollYProgress,[0,.5,1],[0,100,0]);
+  return <section ref={ref} className="worlds">
+    <motion.div className="world world-design" style={{x:left}}>
+      <div className="world-image image-design"></div>
+      <div className="world-content"><span className="eyebrow">THE LEFT SIDE</span><h3>DESIGN</h3><p>Art direction, identity and interfaces shaped around a point of view.</p></div>
+    </motion.div>
+    <motion.div className="world world-tech" style={{x:right}}>
+      <div className="world-image image-tech"><div className="code-lines">01 / EXPERIENCE<br/>02 / INTERACTION<br/>03 / SYSTEM<br/>04 / MOTION</div></div>
+      <div className="world-content"><span className="eyebrow">THE RIGHT SIDE</span><h3>TECHNOLOGY</h3><p>Modern engineering that turns visual intent into a living interface.</p></div>
+    </motion.div>
+    <motion.div className="world-divider" style={{scaleY:useTransform(line,[0,100],[0,1])}}></motion.div>
+    <div className="worlds-center">DESIGN <span>×</span> TECHNOLOGY</div>
+  </section>
+}
+
+function Work() {
+  const ref=useRef<HTMLDivElement>(null);
+  const {scrollYProgress}=useScroll({target:ref,offset:["start start","end end"]});
+  const x=useTransform(scrollYProgress,[0,1],[0,-(work.length-1)*100]);
+  return <section id="work" ref={ref} className="work-wrap">
+    <div className="work-sticky">
+      <div className="section-label work-label"><span>03</span><span>SELECTED WORK</span></div>
+      <motion.div className="work-track" style={{x:x}}>{work.map((item,i)=><article className="work-card" key={item.id}>
+        <div className="work-image-wrap"><motion.img src={item.image} alt="" whileHover={{scale:1.04}} transition={{duration:1}} /><div className="image-noise"></div></div>
+        <div className="work-info"><div><span className="project-no">{item.id}</span><h3>{item.title}</h3><p>{item.type}</p></div><div className="project-side"><span>{item.year}</span><a href="#contact">VIEW CASE <Arrow small/></a></div></div>
+      </article>)}</motion.div>
+      <div className="work-progress"><span></span></div>
+    </div>
+  </section>
+}
+
+function Capabilities() {
+  return <section className="capabilities section-light" id="studio">
+    <div className="section-label dark-label"><span>04</span><span>WHAT WE DO</span></div>
+    <div className="cap-head"><h2>FROM IDEA<br/><em>TO IMPACT.</em></h2><p>Small studio. Big digital ambition. We combine creative direction and technical execution under one roof.</p></div>
+    <div className="cap-list">{capabilities.map(([n,t,d],i)=><Reveal key={n} delay={i*.04}><div className="cap-row"><span>{n}</span><h3>{t}</h3><p>{d}</p><Arrow/></div></Reveal>)}</div>
+  </section>
+}
+
+function Stack() {
+  const ref=useRef<HTMLDivElement>(null);
+  const {scrollYProgress}=useScroll({target:ref,offset:["start end","end start"]});
+  const x1=useTransform(scrollYProgress,[0,1],["8%","-24%"]);
+  const x2=useTransform(scrollYProgress,[0,1],["-20%","10%"]);
+  return <section ref={ref} className="stack">
+    <div className="section-label"><span>05</span><span>THE STACK</span></div>
+    <div className="stack-intro"><span>BUILT BETWEEN</span><strong>DESIGN</strong><span>AND</span><strong>CODE.</strong></div>
+    <div className="marquee-row"><motion.div style={{x:x1}}>{stack.slice(0,5).map(s=><span key={s}>{s}<i>×</i></span>)}</motion.div></div>
+    <div className="marquee-row reverse"><motion.div style={{x:x2}}>{stack.slice(4).map(s=><span key={s}>{s}<i>×</i></span>)}</motion.div></div>
+    <div className="stack-note">SELECTIVE TECHNOLOGY. NEVER TECHNOLOGY FOR ITS OWN SAKE.</div>
+  </section>
+}
+
+function Process() {
+  const steps=[["01","THINK","Find the signal. Define the idea."],["02","SHAPE","Turn strategy into a visual language."],["03","BUILD","Engineer the system behind the feeling."],["04","MOVE","Add motion where it creates meaning."],["05","RELEASE","Launch something people remember."]];
+  return <section className="process">
+    <div className="section-label"><span>06</span><span>THE PROCESS</span></div>
+    <div className="process-head"><h2>MAKE IT<br/><em>MOVE.</em></h2><p>Our process stays lean so the work can stay ambitious.</p></div>
+    <div className="process-list">{steps.map(([n,t,d],i)=><Reveal key={n} delay={i*.03}><div className="process-row"><span>{n}</span><h3>{t}</h3><p>{d}</p><span className="process-arrow">↗</span></div></Reveal>)}</div>
+  </section>
+}
+
+function Statement() {
+  const ref=useRef<HTMLDivElement>(null);
+  const {scrollYProgress}=useScroll({target:ref,offset:["start end","end start"]});
+  const rotate=useTransform(scrollYProgress,[0,1],[-2,2]);
+  return <section ref={ref} className="statement section-light">
+    <motion.div className="statement-mark" style={{rotate}}>P</motion.div>
+    <div className="section-label dark-label"><span>07</span><span>STUDIO NOTE</span></div>
+    <div className="statement-copy"><span>WE BELIEVE</span><h2>THE BEST<br/><em>DIGITAL WORK</em><br/>FEELS ALIVE.</h2></div>
+    <div className="statement-foot"><span>NOT MORE. JUST BETTER.</span><span>PARALLEL / 2026</span></div>
+  </section>
+}
+
+function Contact() {
+  const [sent,setSent]=useState(false);
+  return <section id="contact" className="contact">
+    <div className="section-label"><span>08</span><span>START SOMETHING</span></div>
+    <div className="contact-lines"><span></span><span></span></div>
+    <div className="contact-main"><span className="eyebrow">HAVE A PROJECT IN MIND?</span><h2>LET'S MAKE<br/><em>SOMETHING MOVE.</em></h2>
+      <Magnetic><button className="contact-cta" onClick={()=>setSent(true)}>{sent?"MESSAGE READY":"START A PROJECT"} <Arrow/></button></Magnetic>
+      <p>{sent?"Drop us a line at hello@parallel.studio":"Tell us what you're building. We'll take it from there."}</p>
+    </div>
+    <div className="contact-foot"><span>LAHORE / PAKISTAN</span><span>WORKING WORLDWIDE</span></div>
+  </section>
+}
+
+function Footer() {
+  return <footer><div className="footer-top"><a className="footer-brand" href="#top">PARALLEL<span>®</span></a><div><span className="eyebrow">DIGITAL EXPERIENCE STUDIO</span><p>Websites, interfaces and digital experiences built around design, technology and motion.</p></div></div><div className="footer-bottom"><span>© 2026 PARALLEL STUDIO</span><div><a href="#work">WORK</a><a href="#studio">STUDIO</a><a href="#contact">CONTACT</a></div><a href="#top">BACK TO TOP ↑</a></div></footer>
+}
+
+function App(){
+  const [menu,setMenu]=useState(false);
+  useEffect(()=>{document.body.classList.toggle("menu-open",menu);return()=>document.body.classList.remove("menu-open")},[menu]);
+  return <div className="site"><Header onMenu={()=>setMenu(!menu)}/>{menu&&<div className="mobile-menu"><a href="#work" onClick={()=>setMenu(false)}>WORK <Arrow/></a><a href="#studio" onClick={()=>setMenu(false)}>STUDIO <Arrow/></a><a href="#contact" onClick={()=>setMenu(false)}>CONTACT <Arrow/></a></div>}
+    <main><Hero/><Manifesto/><SplitWorlds/><Work/><Capabilities/><Stack/><Process/><Statement/><Contact/></main><Footer/>
+  </div>
+}
+export default App;
