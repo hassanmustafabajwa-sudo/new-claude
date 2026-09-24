@@ -174,14 +174,55 @@ function Statement() {
 }
 
 function Contact() {
+  const [submitted,setSubmitted]=useState(false);
+  const [form,setForm]=useState({name:"",email:"",company:"",project:"",budget:"",message:""});
+  const update=(key:keyof typeof form)=>(e:React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement>)=>setForm(v=>({...v,[key]:e.target.value}));
+  const submit=(e:React.FormEvent<HTMLFormElement>)=>{
+    e.preventDefault();
+    const subject=encodeURIComponent(`PARALLEL — Project Inquiry from ${form.name}`);
+    const body=encodeURIComponent([
+      `Name: ${form.name}`,
+      `Email: ${form.email}`,
+      `Company: ${form.company||"—"}`,
+      `Project: ${form.project}`,
+      `Budget: ${form.budget||"—"}`,
+      "",
+      form.message
+    ].join("\n"));
+    setSubmitted(true);
+    window.location.href=`mailto:hello@parallel.studio?subject=${subject}&body=${body}`;
+  };
   return <section id="contact" className="contact">
     <div className="section-label"><span>08</span><span>START SOMETHING</span></div>
     <div className="contact-lines"><span></span><span></span></div>
-    <div className="contact-main"><span className="eyebrow">HAVE A PROJECT IN MIND?</span><h2>LET'S MAKE<br/><em>SOMETHING MOVE.</em></h2>
-      <Magnetic><a className="contact-cta" href="mailto:hello@parallel.studio?subject=Project%20Inquiry">START A PROJECT <Arrow/></a></Magnetic>
-      <p>Tell us what you’re building. We’ll take it from there.</p>
+    <div className="contact-main">
+      <div className="contact-intro">
+        <span className="eyebrow">HAVE A PROJECT IN MIND?</span>
+        <h2>LET'S MAKE<br/><em>SOMETHING MOVE.</em></h2>
+        <p>Tell us what you're building. Give us the signal. We'll take it from there.</p>
+        <div className="contact-meta"><span>LAHORE / PAKISTAN</span><span>WORKING WORLDWIDE</span><a href="mailto:hello@parallel.studio">HELLO@PARALLEL.STUDIO</a></div>
+      </div>
+      <div className="contact-form-wrap">
+        {!submitted ? <form className="contact-form" onSubmit={submit}>
+          <div className="form-row form-row-double">
+            <label><span>01 / NAME</span><input required value={form.name} onChange={update("name")} autoComplete="name" /></label>
+            <label><span>02 / EMAIL</span><input required type="email" value={form.email} onChange={update("email")} autoComplete="email" /></label>
+          </div>
+          <div className="form-row form-row-double">
+            <label><span>03 / COMPANY <i>OPTIONAL</i></span><input value={form.company} onChange={update("company")} autoComplete="organization" /></label>
+            <label><span>04 / PROJECT TYPE</span><select required value={form.project} onChange={update("project")}><option value="" disabled>Select one</option><option>Website / Digital Experience</option><option>Ecommerce</option><option>Brand / Art Direction</option><option>Web App / Product</option><option>Something Else</option></select></label>
+          </div>
+          <div className="form-row">
+            <label><span>05 / BUDGET <i>OPTIONAL</i></span><select value={form.budget} onChange={update("budget")}><option value="">Prefer not to say</option><option>Under $2,000</option><option>$2,000 — $5,000</option><option>$5,000 — $10,000</option><option>$10,000+</option></select></label>
+          </div>
+          <div className="form-row">
+            <label><span>06 / TELL US ABOUT IT</span><textarea required rows={4} value={form.message} onChange={update("message")} /></label>
+          </div>
+          <div className="form-submit-row"><span>WE'LL GET BACK TO YOU AS SOON AS POSSIBLE.</span><Magnetic><button className="form-submit" type="submit">SEND INQUIRY <Arrow/></button></Magnetic></div>
+        </form> : <div className="form-success"><span className="eyebrow">MESSAGE READY</span><h3>THANK YOU.<br/><em>WE'LL TAKE IT FROM HERE.</em></h3><p>Your inquiry has been prepared in your email client. Send it to complete the introduction.</p><button onClick={()=>setSubmitted(false)}>SEND ANOTHER <Arrow small/></button></div>}
+      </div>
     </div>
-    <div className="contact-foot"><span>LAHORE / PAKISTAN</span><span>WORKING WORLDWIDE</span></div>
+    <div className="contact-foot"><span>08 / CONTACT</span><span>PARALLEL / 2026</span></div>
   </section>
 }
 
