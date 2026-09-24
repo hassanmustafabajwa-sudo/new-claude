@@ -231,6 +231,7 @@ function Contact() {
         <div className="contact-meta"><span>LAHORE / PAKISTAN</span><span>WORKING WORLDWIDE</span><a href="mailto:hello@parallel.studio">HELLO@PARALLEL.STUDIO</a></div>
       </div>
       <div className="contact-form-wrap">
+        <div className="contact-form-head"><div><span>PROJECT INQUIRY</span><strong>08 — 2026</strong></div><div><span>EST. RESPONSE</span><strong>48 HOURS</strong></div></div>
         {status==="success" ? <div className="form-success" role="status">
           <span className="eyebrow">MESSAGE SENT</span>
           <h3>THANK YOU.<br/><em>WE'LL TAKE IT FROM HERE.</em></h3>
@@ -254,7 +255,7 @@ function Contact() {
           </div>
           {status==="error" && <div className="form-error" role="alert">MESSAGE COULDN'T BE SENT. EMAIL <a href="mailto:hello@parallel.studio">HELLO@PARALLEL.STUDIO</a> DIRECTLY.</div>}
           <div className="form-submit-row">
-            <span>YOUR BRIEF STAYS PRIVATE. WE ONLY USE IT TO RESPOND.</span>
+            <span>PRIVATE BY DEFAULT / USED ONLY TO RESPOND</span>
             <Magnetic><button className="form-submit" type="submit" disabled={status==="sending"}>{status==="sending" ? "SENDING…" : "SEND INQUIRY"} <Arrow/></button></Magnetic>
           </div>
         </form>}
