@@ -188,3 +188,63 @@ footer{background:#080808;border-top:1px solid #1d1d1d;padding:100px 42px 28px;p
  .menu-button{display:flex;background:none;border:0;color:#aaa;align-items:center;gap:10px;font:500 8px var(--mono);letter-spacing:.14em;padding:8px 0}.menu-button i{display:block;width:20px;height:1px;background:#aaa;transform-origin:right;transition:transform .3s}.menu-button i+ i{margin-top:5px}
  footer{padding:72px 20px 24px}.footer-top{grid-template-columns:1fr;padding-bottom:75px;gap:60px}.footer-brand{font-size:25vw}.footer-top>div{justify-self:start}.footer-bottom{grid-template-columns:1fr auto;padding-top:20px;row-gap:20px}.footer-bottom>div{display:none}.footer-bottom>a{justify-self:end}.footer-bottom:before{left:20px;right:20px}
 }
+
+
+/* Final typography correction — visible premium type */
+:root{--display:"Manrope",Arial,sans-serif}
+
+.header{
+  mix-blend-mode:normal;
+  color:#f4f2ed;
+  background:rgba(7,7,7,.96);
+  border-bottom:1px solid rgba(255,255,255,.14);
+  box-shadow:0 1px 0 rgba(255,255,255,.03);
+}
+.brand{color:#fff;opacity:1}
+.brand-name{font-family:var(--display);font-weight:800;color:#fff;letter-spacing:-.065em}
+.brand-mark{color:#fff;border-color:rgba(255,255,255,.72)}
+.brand-reg{color:#8f8d87}
+.header-center{color:#aaa}
+.header-center i{background:#aaa}
+.desktop-nav a{color:#d2d0ca;opacity:1}
+.desktop-nav a span{color:#777}
+.desktop-nav a:hover{color:#fff}
+.desktop-nav a:hover span{color:#aaa}
+
+.contact-form-wrap{color:#101010}
+.contact-form-head{border-bottom-color:rgba(7,7,7,.2)}
+.contact-form-head span{font-size:8px;font-weight:500;color:#5d5c57}
+.contact-form-head strong{font-size:10px;font-weight:700;color:#111;letter-spacing:.11em}
+.contact-form label>span{font-size:8px;font-weight:600;color:#5a5954;letter-spacing:.13em}
+.contact-form label i{color:#888}
+.contact-form input,.contact-form select,.contact-form textarea{
+  color:#111;
+  font-family:var(--display);
+  font-size:15px;
+  font-weight:500;
+  line-height:1.5;
+  caret-color:#111;
+}
+.contact-form input::placeholder,.contact-form textarea::placeholder{color:#888}
+.contact-form select{color:#111}
+.contact-form select option{color:#111;background:#eeece6}
+.contact-form input:focus,.contact-form select:focus,.contact-form textarea:focus{color:#111}
+.contact-form label:focus-within>span{color:#111}
+.contact-form .form-row{border-bottom-color:rgba(7,7,7,.22)}
+.form-submit-row>span{color:#686761;font-weight:500}
+.form-submit{background:#090909;color:#fff;font-weight:600}
+.form-submit:hover{background:#000}
+.form-error{color:#744f4f}
+.form-success h3{color:#111}
+.form-success p{color:#555}
+
+@media(max-width:800px){
+  .header{height:76px;background:rgba(7,7,7,.98)}
+  .brand-name{font-size:18px}
+  .menu-button{color:#fff}
+  .menu-button i{background:#fff}
+  .contact-form-head span{font-size:7px}
+  .contact-form-head strong{font-size:9px}
+  .contact-form label>span{font-size:7px;color:#5d5c57}
+  .contact-form input,.contact-form select,.contact-form textarea{font-size:14px}
+}
