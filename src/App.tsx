@@ -30,14 +30,14 @@ function Magnetic({children}:{children:React.ReactNode}) {
   return <motion.div style={{x:sx,y:sy}} onMouseMove={e=>{const r=e.currentTarget.getBoundingClientRect();x.set((e.clientX-r.left-r.width/2)*.16);y.set((e.clientY-r.top-r.height/2)*.16)}} onMouseLeave={()=>{x.set(0);y.set(0)}}>{children}</motion.div>
 }
 
-function Header({onMenu}:{onMenu:()=>void}) {
+function Header({onMenu,menu}:{onMenu:()=>void;menu:boolean}) {
   return <header className="header">
     <a className="brand" href="#top" aria-label="Parallel home">PARALLEL<span>®</span></a>
     <div className="header-center">DIGITAL EXPERIENCE STUDIO</div>
     <nav className="desktop-nav">
       <a href="#work">WORK</a><a href="#studio">STUDIO</a><a href="#contact">CONTACT</a>
     </nav>
-    <button className="menu-button" onClick={onMenu}><span>MENU</span><i></i><i></i></button>
+    <button className="menu-button" onClick={onMenu} aria-expanded={menu} aria-label={menu?"Close menu":"Open menu"}><span>{menu?"CLOSE":"MENU"}</span><i></i><i></i></button>
   </header>
 }
 
@@ -105,15 +105,15 @@ function SplitWorlds() {
 function Work() {
   const ref=useRef<HTMLDivElement>(null);
   const {scrollYProgress}=useScroll({target:ref,offset:["start start","end end"]});
-  const x=useTransform(scrollYProgress,[0,1],[0,-(work.length-1)*100]);
+  const x=useTransform(scrollYProgress,[0,1],[0, -(work.length-1)*87]);
   return <section id="work" ref={ref} className="work-wrap">
     <div className="work-sticky">
       <div className="section-label work-label"><span>03</span><span>SELECTED WORK</span></div>
       <motion.div className="work-track" style={{x:x}}>{work.map((item,i)=><article className="work-card" key={item.id}>
-        <div className="work-image-wrap"><motion.img src={item.image} alt="" whileHover={{scale:1.04}} transition={{duration:1}} /><div className="image-noise"></div></div>
-        <div className="work-info"><div><span className="project-no">{item.id}</span><h3>{item.title}</h3><p>{item.type}</p></div><div className="project-side"><span>{item.year}</span><a href="#contact">VIEW CASE <Arrow small/></a></div></div>
+        <div className="work-image-wrap"><motion.img src={item.image} alt={item.title} whileHover={{scale:1.035}} transition={{duration:1}} /><div className="image-noise"></div><div className="work-overlay"><span>{item.id}</span><span>EXPLORE</span></div></div>
+        <div className="work-info"><div><span className="project-no">{item.id}</span><h3>{item.title}</h3><p>{item.type}</p></div><div className="project-side"><span>{item.year}</span><a href="#contact" aria-label={`Discuss ${item.title}`}>VIEW PROJECT <Arrow small/></a></div></div>
       </article>)}</motion.div>
-      <div className="work-progress"><span></span></div>
+      <div className="work-progress"><motion.span style={{scaleX:useTransform(scrollYProgress,[0,1],[0.33,1])}} /></div>
     </div>
   </section>
 }
@@ -162,13 +162,12 @@ function Statement() {
 }
 
 function Contact() {
-  const [sent,setSent]=useState(false);
   return <section id="contact" className="contact">
     <div className="section-label"><span>08</span><span>START SOMETHING</span></div>
     <div className="contact-lines"><span></span><span></span></div>
     <div className="contact-main"><span className="eyebrow">HAVE A PROJECT IN MIND?</span><h2>LET'S MAKE<br/><em>SOMETHING MOVE.</em></h2>
-      <Magnetic><button className="contact-cta" onClick={()=>setSent(true)}>{sent?"MESSAGE READY":"START A PROJECT"} <Arrow/></button></Magnetic>
-      <p>{sent?"Drop us a line at hello@parallel.studio":"Tell us what you're building. We'll take it from there."}</p>
+      <Magnetic><a className="contact-cta" href="mailto:hello@parallel.studio?subject=Project%20Inquiry">START A PROJECT <Arrow/></a></Magnetic>
+      <p>Tell us what you’re building. We’ll take it from there.</p>
     </div>
     <div className="contact-foot"><span>LAHORE / PAKISTAN</span><span>WORKING WORLDWIDE</span></div>
   </section>
@@ -181,7 +180,7 @@ function Footer() {
 function App(){
   const [menu,setMenu]=useState(false);
   useEffect(()=>{document.body.classList.toggle("menu-open",menu);return()=>document.body.classList.remove("menu-open")},[menu]);
-  return <div className="site"><Header onMenu={()=>setMenu(!menu)}/>{menu&&<div className="mobile-menu"><a href="#work" onClick={()=>setMenu(false)}>WORK <Arrow/></a><a href="#studio" onClick={()=>setMenu(false)}>STUDIO <Arrow/></a><a href="#contact" onClick={()=>setMenu(false)}>CONTACT <Arrow/></a></div>}
+  return <div className="site"><Header onMenu={()=>setMenu(!menu)} menu={menu}/>{menu&&<div className="mobile-menu"><button className="mobile-menu-close" onClick={()=>setMenu(false)}>CLOSE ×</button><a href="#work" onClick={()=>setMenu(false)}>WORK <Arrow/></a><a href="#studio" onClick={()=>setMenu(false)}>STUDIO <Arrow/></a><a href="#contact" onClick={()=>setMenu(false)}>CONTACT <Arrow/></a></div>}
     <main><Hero/><Manifesto/><SplitWorlds/><Work/><Capabilities/><Stack/><Process/><Statement/><Contact/></main><Footer/>
   </div>
 }
